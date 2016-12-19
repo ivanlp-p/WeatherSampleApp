@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">WeatherSampleApp</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="test_address">---</string>
+    <string name="last_update_time">Последнее обновление: </string>
+    <string name="no_location_detected">Не удалось получить текущее местоположэение</string>
+    <string name="gps_not_activited">Необходимо включить геолокацию</string>
+    <string name="warning_toast">Невозможно обновить информацию о прогнозе погоды</string>
+
+    <string name="forecast_three_days">Прогноз на 3 дня</string>
+</resources>
