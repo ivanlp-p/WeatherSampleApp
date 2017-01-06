@@ -8,64 +8,69 @@
     android:layout_margin="5dp"
     app:cardBackgroundColor="@android:color/transparent">
 
-    <LinearLayout
-        android:id="@+id/ll_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center_vertical"
-        android:gravity="center"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical">
 
-        android:layout_marginLeft="11dp">
-
-        <TextView
-            android:id="@+id/card_hour_time"
+        <LinearLayout
+            android:id="@+id/ll_date"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="04:00"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginLeft="11dp">
 
-        <TextView
-            android:id="@+id/card_hour_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:text="Ср, 22  Дек"/>
+            <TextView
+                android:id="@+id/card_hour_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="04:00"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/card_hour_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:text="Ср, 22  Дек"/>
 
-    <ImageView
-        android:id="@+id/card_hour_weather_icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:layout_marginRight="20dp"/>
+        </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_temp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="16dp"
-        android:orientation="vertical"
-        android:layout_gravity="right|center_vertical"
-        android:gravity="center">
+        <ImageView
+            android:id="@+id/card_hour_weather_icon"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/ll_date"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="30dp"/>
 
-        <TextView
-            android:id="@+id/card_hour_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="12 C"/>
+        <LinearLayout
+            android:id="@+id/ll_temp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="16dp"
+            android:orientation="vertical"
+            android:layout_toRightOf="@+id/card_hour_weather_icon"
+            android:gravity="center">
 
-        <TextView
-            android:id="@+id/card_hour_weather"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="Пасмурно"/>
+            <TextView
+                android:id="@+id/card_hour_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="12 C"/>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/card_hour_weather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="Пасмурно"/>
+
+        </LinearLayout>
+    </RelativeLayout>
 </android.support.v7.widget.CardView>

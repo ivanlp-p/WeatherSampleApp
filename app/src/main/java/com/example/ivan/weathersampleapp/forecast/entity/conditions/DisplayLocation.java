@@ -1,9 +1,5 @@
 package com.example.ivan.weathersampleapp.forecast.entity.conditions;
 
-/**
- * Created by I.Laukhin on 19.12.2016.
- */
-
 public class DisplayLocation {
 
     private String full;

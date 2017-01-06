@@ -5,12 +5,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.ivan.weathersampleapp.R;
 import com.example.ivan.weathersampleapp.common.WeatherSampleApplication;
 import com.example.ivan.weathersampleapp.forecast.view.WeatherFragment;
+import com.example.ivan.weathersampleapp.hourly.view.HourlyFragment;
 import com.example.ivan.weathersampleapp.main.presenter.MainPresenter;
 import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
@@ -65,7 +66,6 @@ public class MainActivity
         navigationView.setCheckedItem(R.id.forecast);
 
         getPresenter().checkLocationPermission();
-
     }
 
     @Override
@@ -78,6 +78,7 @@ public class MainActivity
     @Override
     protected void onPause() {
         super.onPause();
+
         getPresenter().stopLocationUpdate();
     }
 
@@ -97,6 +98,11 @@ public class MainActivity
     public void showNoGpsToast() {
         Toast.makeText(this, getResources().getString(R.string.gps_not_activited),
                 Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showWeatherFirstTime() {
+        fragment.showWeatherFirstTime();
     }
 
     @Override
@@ -132,10 +138,21 @@ public class MainActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        Fragment fragment = null;
+
         if (id == R.id.forecast) {
+            fragment = WeatherFragment.newInstance();
 
         } else if (id == R.id.hourly) {
+            fragment = HourlyFragment.newInstance();
+        }
 
+        if (fragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager
+                    .beginTransaction()
+                    .replace(R.id.content_container, fragment)
+                    .commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -148,9 +165,7 @@ public class MainActivity
         switch (requestCode) {
             case 1:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("perm", "perm granded");
-
-                    fragment.showWeatherFirstTime();
+                    getPresenter().startUpdateAfterPermGranted();
 
                 } else {
                     Toast.makeText(this, "Права доступа к определению местоположения не получены",

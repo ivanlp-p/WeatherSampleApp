@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import com.crashlytics.android.Crashlytics;
 import com.example.ivan.weathersampleapp.BuildConfig;
 import com.example.ivan.weathersampleapp.forecast.presenter.WeatherPresenterImpl;
+import com.example.ivan.weathersampleapp.hourly.presenter.HourlyPresenterImpl;
 import com.example.ivan.weathersampleapp.main.presenter.MainPresenterImpl;
 import com.example.ivan.weathersampleapp.main.view.MainActivity;
 import com.squareup.leakcanary.LeakCanary;
@@ -16,7 +17,6 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import io.fabric.sdk.android.Fabric;
-
 
 public class WeatherSampleApplication extends Application {
 
@@ -32,7 +32,7 @@ public class WeatherSampleApplication extends Application {
 
         MainPresenterImpl mainPresenter();
         WeatherPresenterImpl weatherPresenter();
-
+        HourlyPresenterImpl hourlyPresenter();
     }
 
     @Override
@@ -78,7 +78,6 @@ public class WeatherSampleApplication extends Application {
 
         return component;
     }
-
 
     private ApplicationComponent createComponent() {
         return DaggerWeatherSampleApplication_ApplicationComponent

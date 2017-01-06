@@ -12,9 +12,6 @@ import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 
-/**
- * Created by I.Laukhin on 16.12.2016.
- */
 
 public class UnsafeOkHttpClient {
     public static OkHttpClient.Builder getUnsafeOkHttpClient() {

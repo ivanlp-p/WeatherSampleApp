@@ -23,20 +23,13 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-/**
- * Created by I.Laukhin on 15.12.2016.
- */
 
 public class LocationApi implements LocationListener, ConnectionCallbacks, OnConnectionFailedListener {
 
-    protected static final String TAG = "location-updates-sample";
+    private static final String TAG = "location-updates-sample";
 
-    private final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
-    private final static String LOCATION_KEY = "location-key";
-    private final static String LAST_UPDATED_TIME_STRING_KEY = "last-updated-time-string-key";
-
-    public static final int UPDATE_INTERVAL_IN_SECONDS = 10000;
-    public static final int FAST_CEILING_IN_SECONDS = UPDATE_INTERVAL_IN_SECONDS / 2;
+    private static final int UPDATE_INTERVAL_IN_SECONDS = 5000;
+    private static final int FAST_CEILING_IN_SECONDS = UPDATE_INTERVAL_IN_SECONDS / 2;
 
     private GoogleApiClient googleApiClient;
 
@@ -51,7 +44,6 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
     private DateTimeFormatter formatter;
     private String date;
 
-    private Boolean requestingLocationUpdates;
     private boolean isGoogleApiConnected = false;
 
     public LocationApi(Context context) {
@@ -77,7 +69,6 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
     }
 
     private synchronized void buildGoogleApiClient(Context context) {
-        Log.i(TAG, "Building GoogleApiClient");
 
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(context)
@@ -87,9 +78,6 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
                     .build();
         }
         createLocationRequest();
-
-        Log.i(TAG, "Building GoogleApiClient is end");
-
     }
 
     private void createLocationRequest() {
@@ -100,38 +88,20 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
-    public void updateLocationFromBundle(Bundle savedInstanceState) {
-
-        if (savedInstanceState != null) {
-
-            if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
-                requestingLocationUpdates = savedInstanceState.getBoolean(REQUESTING_LOCATION_UPDATES_KEY);
-            }
-
-            if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
-                lastLocation = savedInstanceState.getParcelable(LOCATION_KEY);
-            }
-
-            if (savedInstanceState.keySet().contains(LAST_UPDATED_TIME_STRING_KEY)) {
-              //  lastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
-            }
-        }
-    }
-
     public void startLocationUpdate() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-                Log.d("happy", "startLocationUpdates");
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+                    LocationServices.FusedLocationApi.requestLocationUpdates(
+                            googleApiClient, locationRequest, this);
+                }
+            } else {
                 LocationServices.FusedLocationApi.requestLocationUpdates(
                         googleApiClient, locationRequest, this);
             }
-        } else {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    googleApiClient, locationRequest, this);
-        }
-
+        
     }
 
     public void stopLocationUpdate() {
@@ -140,6 +110,7 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
 
     public void disconnectGoogleApi() {
         googleApiClient.disconnect();
+        isGoogleApiConnected = false;
     }
 
     @Override
@@ -164,14 +135,13 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
             latitude = lastLocation.getLatitude();
             longitude = lastLocation.getLongitude();
             date = lastUpdateTime.toString(formatter);
-
-            isGoogleApiConnected = true;
         }
+
+        isGoogleApiConnected = true;
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i(TAG, "Connection suspended");
         googleApiClient.connect();
     }
 
@@ -183,16 +153,10 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
     @Override
     public void onLocationChanged(Location location) {
         lastLocation = location;
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
         lastUpdateTime = new DateTime();
         date = lastUpdateTime.toString(formatter);
-        Log.d("onLocationChanged", "onLocationChanged");
-    //    updateUI();
-
-    }
-
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, requestingLocationUpdates);
-
     }
 
     public boolean isGoogleApiConnected() {

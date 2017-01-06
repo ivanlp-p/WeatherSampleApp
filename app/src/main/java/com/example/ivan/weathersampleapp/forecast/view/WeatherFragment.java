@@ -4,12 +4,10 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
-import android.location.Address;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,14 +25,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-/**
- * Created by I.Laukhin on 16.12.2016.
- */
 
 public class WeatherFragment
         extends MvpFragment<WeatherView, WeatherPresenter>
         implements WeatherView {
-    private static final String PERMISSION_TAG = "permission_tag";
 
     private FragmentWeatherBinding binding;
     private TextView cityName;
@@ -46,9 +40,7 @@ public class WeatherFragment
 
     public static WeatherFragment newInstance() {
 
-        WeatherFragment fragment = new WeatherFragment();
-
-        return fragment;
+        return new WeatherFragment();
     }
 
     @Nullable
@@ -73,13 +65,10 @@ public class WeatherFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
-
         binding.forecastRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 getPresenter().updateWeatherInfo();
-                Log.d("update", "Update is done");
                 binding.forecastRefresh.setRefreshing(false);
             }
         });
@@ -89,35 +78,27 @@ public class WeatherFragment
     public void onStart() {
         super.onStart();
 
-        if (getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED&&
+        if (getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            getPresenter().connectGoogleApi();
             getPresenter().loadWeatherInfo();
         }
-
-
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onResume() {
+        super.onResume();
 
-        getPresenter().stopGoogleApi();
-    }
-
-    @Override
-    public void showCurrentWeather(ConditionsEntity entity, Address address, String lastUpdateTime) {
-        if (address != null) {
-            cityName.setText(address.getLocality());
-            binding.currentPosAddress.setText(address.getCountryName() + ", " +
-                    address.getAdminArea() + ", " +
-                    address.getLocality() + ", " +
-                    address.getAddressLine(0));
-        } else {
-            cityName.setText(entity.getObservation().getDisplay_location().getCity());
-            binding.currentPosAddress.setText(entity.getObservation().getDisplay_location().getFull());
+        if (getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            getPresenter().updateWeatherInfo();
         }
+    }
 
+    @Override
+    public void showCurrentWeather(ConditionsEntity entity, String city, String area, String lastUpdateTime) {
+
+        cityName.setText(city);
+        binding.currentPosAddress.setText(area);
         binding.dateLastUpdate.setText(getResources().getString(R.string.last_update_time) + lastUpdateTime);
         binding.currentTemp.setText(entity.getObservation().getTemp_c() + " °C");
         binding.feelslikeTemp.setText("Ощущается: " + entity.getObservation().getFeelslike_c() + " °C");
@@ -140,8 +121,6 @@ public class WeatherFragment
     }
 
     public void showWeatherFirstTime() {
-        getPresenter().connectGoogleApi();
         getPresenter().loadWeatherInfo();
     }
-
 }

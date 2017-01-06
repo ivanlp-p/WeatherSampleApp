@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.content.ContextCompat;
 
 import com.example.ivan.weathersampleapp.location.LocationApi;
@@ -12,13 +14,11 @@ import com.hannesdorfmann.mosby.mvp.MvpBasePresenter;
 
 import javax.inject.Inject;
 
-/**
- * Created by I.Laukhin on 15.12.2016.
- */
 
 public class MainPresenterImpl
         extends MvpBasePresenter<MainView>
-        implements MainPresenter {
+        implements MainPresenter
+{
 
     private Context context;
     private LocationApi locationApi;
@@ -42,9 +42,15 @@ public class MainPresenterImpl
                     getView().showRequestPermissions();
                 }
             }
-        } else {
-            getView().showNoGpsToast();
         }
+    }
+
+    @Override
+    public void startUpdateAfterPermGranted() {
+        if (locationApi.isGoogleApiConnected())
+            locationApi.startLocationUpdate();
+
+        locationThread.start();
     }
 
     @Override
@@ -63,4 +69,35 @@ public class MainPresenterImpl
     public void disconnectGoogleApi() {
         locationApi.disconnectGoogleApi();
     }
+
+    private final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Boolean isLocationAvailable = (Boolean) msg.obj;
+
+            if (isLocationAvailable) {
+                if (isViewAttached()) {
+                    getView().showWeatherFirstTime();
+                }
+
+            }
+        }
+    };
+
+    private Thread locationThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            Message msg = Message.obtain();
+            Boolean isLocationAvailable = false;
+
+            while (!isLocationAvailable) {
+                if (locationApi.getLatitude() != null) {
+
+                    isLocationAvailable = true;
+                    msg.obj = isLocationAvailable;
+                    handler.sendMessage(msg);
+                }
+            }
+        }
+    });
 }

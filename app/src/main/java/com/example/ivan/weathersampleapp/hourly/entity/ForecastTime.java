@@ -1,8 +1,5 @@
 package com.example.ivan.weathersampleapp.hourly.entity;
 
-/**
- * Created by I.Laukhin on 19.12.2016.
- */
 
 public class ForecastTime {
 
@@ -12,9 +9,7 @@ public class ForecastTime {
     private String mday_padded;
     private String month_name_abbrev;
     private String weekday_name_abbrev;
-    private Temperature temp;
-    private String condition;
-    private String icon_url;
+
 
     public ForecastTime() {
     }
@@ -24,20 +19,13 @@ public class ForecastTime {
                         String mon,
                         String mday_padded,
                         String month_name_abbrev,
-                        String weekday_name_abbrev,
-                        Temperature temp,
-                        String condition,
-                        String icon_url)
-    {
+                        String weekday_name_abbrev) {
         this.hour_padded = hour_padded;
         this.min = min;
         this.mon = mon;
         this.mday_padded = mday_padded;
         this.month_name_abbrev = month_name_abbrev;
         this.weekday_name_abbrev = weekday_name_abbrev;
-        this.temp = temp;
-        this.condition = condition;
-        this.icon_url = icon_url;
     }
 
     public String getHour_padded() {
@@ -86,29 +74,5 @@ public class ForecastTime {
 
     public void setWeekday_name_abbrev(String weekday_name_abbrev) {
         this.weekday_name_abbrev = weekday_name_abbrev;
-    }
-
-    public Temperature getTemp() {
-        return temp;
-    }
-
-    public void setTemp(Temperature temp) {
-        this.temp = temp;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getIcon_url() {
-        return icon_url;
-    }
-
-    public void setIcon_url(String icon_url) {
-        this.icon_url = icon_url;
     }
 }

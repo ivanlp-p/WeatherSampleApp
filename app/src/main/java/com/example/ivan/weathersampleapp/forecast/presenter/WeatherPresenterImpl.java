@@ -7,13 +7,13 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import com.example.ivan.weathersampleapp.forecast.entity.conditions.ConditionsEntity;
 import com.example.ivan.weathersampleapp.forecast.entity.forecast.ForecastEntity;
 import com.example.ivan.weathersampleapp.forecast.view.WeatherView;
 import com.example.ivan.weathersampleapp.location.LocationApi;
 import com.example.ivan.weathersampleapp.net.WundergroundApi;
+import com.example.ivan.weathersampleapp.utils.SharedPreferencesHelper;
 import com.hannesdorfmann.mosby.mvp.MvpBasePresenter;
 
 import org.joda.time.DateTime;
@@ -30,13 +30,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Created by I.Laukhin on 16.12.2016.
- */
-
 public class WeatherPresenterImpl
         extends MvpBasePresenter<WeatherView>
-        implements WeatherPresenter {
+        implements WeatherPresenter
+{
 
     private static final String CONDITIONS = "conditions";
     private static final String FORECAST = "forecast";
@@ -44,67 +41,78 @@ public class WeatherPresenterImpl
     private Context context;
     private WundergroundApi wundergroundApi;
     private LocationApi locationApi;
+    private SharedPreferencesHelper prefsHelper;
+
     private volatile Address address;
+    private volatile String area = "";
+    private volatile String cityName = "";
     private volatile String lastUpdateTime;
 
     private LocationManager lm;
 
-
     @Inject
-    public WeatherPresenterImpl(Context context, WundergroundApi wundergroundApi) {
+    public WeatherPresenterImpl(Context context,
+                                WundergroundApi wundergroundApi,
+                                LocationApi locationApi,
+                                SharedPreferencesHelper prefsHelper) {
         this.context = context;
         this.wundergroundApi = wundergroundApi;
+        this.locationApi = locationApi;
+        this.prefsHelper = prefsHelper;
 
         lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
     @Override
     public void loadWeatherInfo() {
-        if (!locationApi.isGoogleApiConnected()) {
+        if (isViewAttached()) {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && isOnline()) {
+                if (!locationApi.isGoogleApiConnected()) {
 
-            locationThread.start();
+                    currentWeatherThread.start();
+                } else {
+                    getWeatherFromApi(locationApi.getLatitude(), locationApi.getLongitude(), true);
+                }
+            }
         }
-
-
-        Log.d("presenter", "Latitude = " + locationApi.getLatitude());
-        Log.d("presenter", "Longitude = " + locationApi.getLongitude());
-    }
-
-    @Override
-    public void connectGoogleApi() {
-        locationApi = new LocationApi(context);
-    }
-
-    @Override
-    public void stopGoogleApi() {
-
     }
 
     @Override
     public void updateWeatherInfo() {
 
         if (isViewAttached()) {
-            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && isOnline()) {
-                locationApi.startLocationUpdate();
-                getWeatherFromApi();
-            } else if (isOnline()){
-                getWeatherFromApi();
-            } else {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && isOnline() && prefsHelper.getConditions() != null) {
+                if (locationApi.isGoogleApiConnected()) {
+                    locationApi.startLocationUpdate();
+                    getWeatherFromApi(locationApi.getLatitude(), locationApi.getLongitude(), true);
+                }
+            } else if (prefsHelper.getConditions() != null && isOnline()) {
+                getWeatherFromApi(prefsHelper.getLastLatitude(), prefsHelper.getLastLongitude(), false);
+            } else if (prefsHelper.getConditions() != null){
+                getView().showCurrentWeather(prefsHelper.getConditions(),
+                        prefsHelper.getLastCity(), prefsHelper.getLastAddress(),
+                        prefsHelper.getLastDate());
+                getView().showForecastWeather(prefsHelper.getForecast().getForecast().getSimpleforecast().getForecastday());
                 getView().showWarningToast();
             }
         }
-
-        Log.d("update", "Update is done");
     }
 
-    private void getWeatherFromApi() {
+    private void getWeatherFromApi(double latitude, double longitube, boolean isLocationConnected) {
+
+        area = "";
+
+        if (isLocationConnected) {
+            prefsHelper.setLastLatitude(latitude);
+            prefsHelper.setLastLongitude(longitube);
+        }
 
         Geocoder geocoder = new Geocoder(context);
         List<Address> addressList = new ArrayList<>();
         try {
             addressList = geocoder.getFromLocation(
-                    locationApi.getLatitude(),
-                    locationApi.getLongitude(),
+                    latitude,
+                    longitube,
                     1);
         } catch (IOException e) {
 
@@ -112,6 +120,22 @@ public class WeatherPresenterImpl
 
         if (addressList != null && addressList.size() > 0) {
             address = addressList.get(0);
+            if (address.getCountryName() != null) {
+                area = area + address.getCountryName();
+            }
+
+            if (address.getAdminArea() != null) {
+                area = area + ", " + address.getAdminArea();
+            }
+
+            if (address.getLocality() != null) {
+                area = area + ", " + address.getLocality();
+                cityName = address.getLocality();
+            }
+
+            if (address.getAddressLine(0) != null) {
+                area = area + ", " + address.getAddressLine(0);
+            }
         }
 
         if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -121,27 +145,34 @@ public class WeatherPresenterImpl
             lastUpdateTime = new DateTime().toString(formatter);
         }
 
+        prefsHelper.setLastDate(lastUpdateTime);
 
-
-        Call<ConditionsEntity> callConditions = wundergroundApi.getConditionsrData(
+        Call<ConditionsEntity> callConditions = wundergroundApi.getConditionsData(
                 CONDITIONS,
                 "lang:RU",
-                String.valueOf(locationApi.getLatitude()) + "," + String.valueOf(locationApi.getLongitude()));
+                String.valueOf(latitude) + "," + String.valueOf(longitube));
         callConditions.enqueue(new Callback<ConditionsEntity>() {
 
             @Override
             public void onResponse(Call<ConditionsEntity> call, Response<ConditionsEntity> response) {
                 if (response.isSuccessful()) {
                     ConditionsEntity entity = response.body();
+                    prefsHelper.setConditions(entity);
+
+                    if (address == null) {
+                        area = entity.getObservation().getDisplay_location().getFull();
+                        cityName = entity.getObservation().getDisplay_location().getCity();
+                    }
+
+                    prefsHelper.setLastAddress(area);
+                    prefsHelper.setLastCity(cityName);
 
                     if (isViewAttached()) {
-                        getView().showCurrentWeather(entity, address, lastUpdateTime);
-                        Log.d("update", "Update time " + lastUpdateTime);
+                        getView().showCurrentWeather(entity, cityName, area, lastUpdateTime);
                     }
                 } else {
-                    // getView().showWarningToast();
+                    getView().showWarningToast();
                 }
-
             }
 
             @Override
@@ -153,12 +184,13 @@ public class WeatherPresenterImpl
         Call<ForecastEntity> callForecast = wundergroundApi.getForecastData(
                 FORECAST,
                 "lang:RU",
-                String.valueOf(locationApi.getLatitude()) + "," + String.valueOf(locationApi.getLongitude()));
+                String.valueOf(latitude) + "," + String.valueOf(longitube));
         callForecast.enqueue(new Callback<ForecastEntity>() {
             @Override
             public void onResponse(Call<ForecastEntity> call, Response<ForecastEntity> response) {
                 if (response.isSuccessful()) {
                     ForecastEntity entity = response.body();
+                    prefsHelper.setForecast(entity);
 
                     if (isViewAttached()) {
                         getView().showForecastWeather(entity.getForecast().getSimpleforecast().getForecastday());
@@ -183,17 +215,18 @@ public class WeatherPresenterImpl
         return cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
-    final Handler handler = new Handler() {
+    private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             Boolean isGetGoogleApi = (Boolean) msg.obj;
             if (isGetGoogleApi) {
-                getWeatherFromApi();
+                currentWeatherThread.interrupt();
+                getWeatherFromApi(locationApi.getLatitude(), locationApi.getLongitude(), true);
             }
         }
     };
 
-    Thread locationThread = new Thread(new Runnable() {
+    private Thread currentWeatherThread = new Thread(new Runnable() {
         @Override
         public void run() {
             Message msg = Message.obtain();
@@ -205,7 +238,6 @@ public class WeatherPresenterImpl
                     handler.sendMessage(msg);
                 }
             }
-            Log.d("locationApi", locationApi.isGoogleApiConnected() + "");
         }
     });
 }

@@ -1,5 +1,6 @@
 package com.example.ivan.weathersampleapp.hourly.view;
 
+import com.example.ivan.weathersampleapp.hourly.entity.HourlyEntity;
 import com.hannesdorfmann.mosby.mvp.MvpView;
 
 /**
@@ -7,4 +8,6 @@ import com.hannesdorfmann.mosby.mvp.MvpView;
  */
 
 public interface HourlyView extends MvpView {
+
+    void showHourlyForecast(HourlyEntity entity);
 }

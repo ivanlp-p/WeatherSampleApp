@@ -1,8 +1,5 @@
 package com.example.ivan.weathersampleapp.hourly.entity;
 
-/**
- * Created by I.Laukhin on 19.12.2016.
- */
 
 public class Temperature {
 

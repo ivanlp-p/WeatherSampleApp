@@ -4,12 +4,12 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/forecast"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Прогноз на 3 дня" />
+            android:icon="@drawable/ic_wb_sunny_black_24dp"
+            android:title="@string/menu_title_forecast" />
         <item
             android:id="@+id/hourly"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Почасовой прогноз" />
+            android:icon="@drawable/ic_cloud_black_24dp"
+            android:title="@string/menu_title_hourly" />
     </group>
 
 </menu>

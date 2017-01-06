@@ -14,9 +14,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-/**
- * Created by I.Laukhin on 16.12.2016.
- */
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherHolder> {
 
@@ -50,9 +47,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
             holder.cardTemp.setText(
                     forecastList.get(position).getHigh().getCelsius() + "/" + forecastList.get(position).getLow().getCelsius() + " °C"
             );
-
-
-
     }
 
     @Override

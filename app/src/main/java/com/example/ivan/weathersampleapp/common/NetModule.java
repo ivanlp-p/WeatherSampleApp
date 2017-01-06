@@ -13,9 +13,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by I.Laukhin on 15.12.2016.
- */
 
 @Module
 public class NetModule {

@@ -2,14 +2,12 @@ package com.example.ivan.weathersampleapp.net;
 
 import com.example.ivan.weathersampleapp.forecast.entity.conditions.ConditionsEntity;
 import com.example.ivan.weathersampleapp.forecast.entity.forecast.ForecastEntity;
+import com.example.ivan.weathersampleapp.hourly.entity.HourlyEntity;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
-/**
- * Created by I.Laukhin on 15.12.2016.
- */
 
 public interface WundergroundApi {
 
@@ -18,12 +16,17 @@ public interface WundergroundApi {
 
 
     @GET("{features}/{settings}/q/{query}.json")
-    Call<ConditionsEntity> getConditionsrData(@Path("features") String features,
-                                          @Path("settings") String settings,
-                                          @Path("query") String query);
+    Call<ConditionsEntity> getConditionsData(@Path("features") String features,
+                                             @Path("settings") String settings,
+                                             @Path("query") String query);
 
     @GET("{features}/{settings}/q/{query}.json")
     Call<ForecastEntity> getForecastData(@Path("features") String features,
                                         @Path("settings") String settings,
                                         @Path("query") String query);
+
+    @GET("{features}/{settings}/q/{query}.json")
+    Call<HourlyEntity> getHourlyForecastData(@Path("features") String features,
+                                       @Path("settings") String settings,
+                                       @Path("query") String query);
 }
