@@ -90,18 +90,17 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
 
     public void startLocationUpdate() {
 
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-                    LocationServices.FusedLocationApi.requestLocationUpdates(
-                            googleApiClient, locationRequest, this);
-                }
-            } else {
                 LocationServices.FusedLocationApi.requestLocationUpdates(
                         googleApiClient, locationRequest, this);
             }
-        
+        } else {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    googleApiClient, locationRequest, this);
+        }
     }
 
     public void stopLocationUpdate() {
@@ -116,28 +115,31 @@ public class LocationApi implements LocationListener, ConnectionCallbacks, OnCon
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "Connected to GoogleApiClient");
-        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-                    lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-                    lastUpdateTime = new DateTime();
-
-                }
-            } else {
                 lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
                 lastUpdateTime = new DateTime();
+                isGoogleApiConnected = true;
+
+            } else {
+                isGoogleApiConnected = true;
             }
+        } else {
+            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            lastUpdateTime = new DateTime();
+            isGoogleApiConnected = true;
         }
 
-        if (lastLocation != null){
+
+        if (lastLocation != null) {
             latitude = lastLocation.getLatitude();
             longitude = lastLocation.getLongitude();
             date = lastUpdateTime.toString(formatter);
         }
 
-        isGoogleApiConnected = true;
+
     }
 
     @Override

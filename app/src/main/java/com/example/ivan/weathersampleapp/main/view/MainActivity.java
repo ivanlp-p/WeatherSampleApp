@@ -1,5 +1,6 @@
 package com.example.ivan.weathersampleapp.main.view;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -22,11 +24,14 @@ import com.example.ivan.weathersampleapp.hourly.view.HourlyFragment;
 import com.example.ivan.weathersampleapp.main.presenter.MainPresenter;
 import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
+import net.alexandroid.gps.GpsStatusDetector;
+
 public class MainActivity
         extends MvpActivity<MainView, MainPresenter>
-        implements MainView, NavigationView.OnNavigationItemSelectedListener
+        implements MainView, NavigationView.OnNavigationItemSelectedListener, GpsStatusDetector.GpsStatusDetectorCallBack
 {
     WeatherFragment fragment;
+    private GpsStatusDetector gpsStatusDetector;
 
     @NonNull
     @Override
@@ -65,6 +70,8 @@ public class MainActivity
 
         navigationView.setCheckedItem(R.id.forecast);
 
+        gpsStatusDetector = new GpsStatusDetector(this);
+
         getPresenter().checkLocationPermission();
     }
 
@@ -95,9 +102,9 @@ public class MainActivity
     }
 
     @Override
-    public void showNoGpsToast() {
-        Toast.makeText(this, getResources().getString(R.string.gps_not_activited),
-                Toast.LENGTH_SHORT).show();
+    public void showNoGpsDialog() {
+
+        gpsStatusDetector.checkGpsStatus();
     }
 
     @Override
@@ -172,5 +179,24 @@ public class MainActivity
                             Toast.LENGTH_SHORT).show();
                 }
         }
+    }
+
+    @Override
+    public void onGpsSettingStatus(boolean enabled) {
+        Log.d("TAG", "onGpsSettingStatus: " + enabled);
+        if (enabled) {
+            getPresenter().checkLocationPermission();
+        }
+    }
+
+    @Override
+    public void onGpsAlertCanceledByUser() {
+        Log.d("TAG", "onGpsAlertCanceledByUser");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        gpsStatusDetector.checkOnActivityResult(requestCode, resultCode);
     }
 }

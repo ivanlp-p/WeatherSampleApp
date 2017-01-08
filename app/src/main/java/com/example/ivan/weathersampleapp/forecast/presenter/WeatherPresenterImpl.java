@@ -7,6 +7,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.example.ivan.weathersampleapp.forecast.entity.conditions.ConditionsEntity;
 import com.example.ivan.weathersampleapp.forecast.entity.forecast.ForecastEntity;
@@ -67,6 +68,7 @@ public class WeatherPresenterImpl
     public void loadWeatherInfo() {
         if (isViewAttached()) {
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && isOnline()) {
+                Log.d("loadWeatherInfo", "isGoogleApiConnected = " + locationApi.isGoogleApiConnected());
                 if (!locationApi.isGoogleApiConnected()) {
 
                     currentWeatherThread.start();

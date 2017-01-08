@@ -7,12 +7,10 @@
     <string name="action_settings">Settings</string>
     <string name="test_address">---</string>
     <string name="last_update_time">Последнее обновление: </string>
-    <string name="no_location_detected">Не удалось получить текущее местоположэение</string>
-    <string name="gps_not_activited">Необходимо включить геолокацию</string>
+    <string name="no_location_detected">Не удалось получить текущее местоположение</string>
+
     <string name="warning_toast">Невозможно обновить информацию о прогнозе погоды</string>
 
     <string name="forecast_three_days">Прогноз на 3 дня</string>
     <string name="hourly_forecast">Почасовой прогноз</string>
-    <string name="menu_title_forecast">Прогноз на 3 дня</string>
-    <string name="menu_title_hourly">Почасовой прогноз</string>
 </resources>

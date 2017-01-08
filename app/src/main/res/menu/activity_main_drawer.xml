@@ -5,11 +5,11 @@
         <item
             android:id="@+id/forecast"
             android:icon="@drawable/ic_wb_sunny_black_24dp"
-            android:title="@string/menu_title_forecast" />
+            android:title="@string/forecast_three_days" />
         <item
             android:id="@+id/hourly"
             android:icon="@drawable/ic_cloud_black_24dp"
-            android:title="@string/menu_title_hourly" />
+            android:title="@string/hourly_forecast" />
     </group>
 
 </menu>

@@ -33,14 +33,20 @@ public class MainPresenterImpl
     public void checkLocationPermission() {
         LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (isViewAttached()) {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                            && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
+                    } else {
+                        getView().showRequestPermissions();
+                    }
                 } else {
-                    getView().showRequestPermissions();
+                    startUpdateAfterPermGranted();
                 }
+            } else {
+                getView().showNoGpsDialog();
             }
         }
     }
